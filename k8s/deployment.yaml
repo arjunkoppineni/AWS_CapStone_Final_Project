@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: todo-app
-          image: 216989142685.dkr.ecr.us-east-1.amazonaws.com/3-tier:todo
+          image: 216989142685.dkr.ecr.us-east-1.amazonaws.com/feature:tdlist
           ports:
             - containerPort: 80
           env:
