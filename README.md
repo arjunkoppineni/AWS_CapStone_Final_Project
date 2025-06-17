@@ -1,3 +1,8 @@
+########### sudo apt update && sudo apt upgrade -y
+sudo apt install openjdk-17-jdk -y
+sudo apt install maven -y
+sudo apt install mysql-server -y
+
 # 3-tier-app
 
 #### Clone the repo git clone https://github.com/arjunkoppineni/3-tier-app.git
