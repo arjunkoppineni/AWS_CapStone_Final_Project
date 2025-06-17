@@ -1,55 +1,46 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>Edit Task</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
-            padding: 50px;
+        /* Same embedded CSS */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 800px; margin: 50px auto; padding: 30px; background-color: #fff; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); }
+        h1, h2 { text-align: center; color: #2c3e50; }
+        form { display: flex; flex-direction: column; }
+        label { margin-top: 12px; margin-bottom: 5px; font-weight: 600; }
+        input[type="text"], input[type="date"], textarea {
+            padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; resize: vertical;
         }
-        .edit-form {
-            background: white;
-            max-width: 400px;
-            margin: auto;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 12px rgba(0,0,0,0.1);
-        }
-        h2 {
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        input[type="text"] {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #28a745;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
+        textarea { min-height: 80px; }
+        input[type="checkbox"] { margin-top: 8px; transform: scale(1.2); }
+        button { background-color: #3498db; color: white; padding: 10px 18px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        a[href="/"] { display: inline-block; margin-top: 20px; color: #3498db; text-decoration: none; }
+        a[href="/"]:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-<div class="edit-form">
+<div class="container">
     <h2>Edit Task</h2>
-    <form th:action="@{'/todos/' + ${todo.id} + '/edit'}" th:object="${todo}" method="post">
-        <input type="text" th:field="*{title}" placeholder="Edit task title..." required />
+    <form action="/update" method="post" th:object="${task}">
+        <input type="hidden" th:field="*{id}"/>
+
+        <label>Title:</label>
+        <input type="text" th:field="*{title}" required><br>
+
+        <label>Description:</label>
+        <textarea th:field="*{description}"></textarea><br>
+
+        <label>Due Date:</label>
+        <input type="date" th:field="*{dueDate}"><br>
+
+        <label>Completed:</label>
+        <input type="checkbox" th:field="*{completed}"><br>
+
         <button type="submit">Update Task</button>
     </form>
+    <a href="/">Back</a>
 </div>
 </body>
 </html>
