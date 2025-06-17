@@ -1,29 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>ToDo Dashboard</title>
-     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <meta charset="UTF-8">
+    <title>ToDo App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 60%;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f1f1f1;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Task Dashboard</h1>
-    <a href="/add" class="btn">Add Task</a>
-    <table>
-        <thead>
-        <tr><th>Title</th><th>Due Date</th><th>Completed</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-        <tr th:each="task : ${tasks}">
-            <td th:text="${task.title}"></td>
-            <td th:text="${task.dueDate}"></td>
-            <td th:text="${task.completed} ? 'Yes' : 'No'"></td>
-            <td>
-                <a th:href="@{/edit/{id}(id=${task.id})}">Edit</a> |
-                <a th:href="@{/delete/{id}(id=${task.id})}">Delete</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+    <div class="container">
+        <h1>ToDo List</h1>
+        <form th:action="@{/todos}" method="post">
+            <input type="text" name="title" placeholder="Enter a task..." required />
+            <button type="submit">Add</button>
+        </form>
+        <ul>
+            <li th:each="todo : ${todos}" th:classappend="${todo.completed} ? 'completed'">
+                <span th:text="${todo.title}"></span>
+                <form th:action="@{'/todos/' + ${todo.id} + '/toggle'}" method="post">
+                    <button type="submit">Toggle</button>
+                </form>
+            </li>
+        </ul>
+    </div>
 </body>
 </html>
