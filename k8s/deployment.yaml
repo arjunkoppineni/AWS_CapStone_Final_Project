@@ -21,10 +21,10 @@ spec:
             - containerPort: 80
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://database-1.czuuyk0ecdzx.us-east-1.rds.amazonaws.com:3306/todo
+              value: jdbc:mysql://mysqldatabase.czuuyk0ecdzx.us-east-1.rds.amazonaws.com:3306/todo
             - name: SPRING_DATASOURCE_USERNAME
               value: admin
             - name: SPRING_DATASOURCE_PASSWORD
-              value: root1234
+              value: adminadmin
             - name: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
               value: org.hibernate.dialect.MySQL8Dialect
