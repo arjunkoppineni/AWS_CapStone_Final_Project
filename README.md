@@ -1,4 +1,4 @@
-# 🚀 Ultimate AWS Multi-Tier Application Deployment (Multi-Region, EKS, RDS, Route 53, CI/CD)
+# 🚀 AWS Multi-Tier Application Deployment (Multi-Region, EKS, RDS, Route 53, CI/CD)
 
 ## 📌 Table of Contents
 
