@@ -197,7 +197,6 @@ artifacts:
 ## 11. Future Enhancements
 
 * Add **WAF + Shield** for ALB
-* Use **Horizontal Pod Autoscaler** (HPA)
 * Integrate **Prometheus + Grafana** for observability
 * Extend CI/CD with canary/blue-green deployments
 
