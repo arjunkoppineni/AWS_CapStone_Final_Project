@@ -1,211 +1,221 @@
-# Multi-Region Highly Available 3-Tier Application on AWS
+# 🚀 Ultimate AWS Multi-Tier Application Deployment (Multi-Region, EKS, RDS, Route 53, CI/CD)
 
-## Overview
+## 📌 Table of Contents
 
-This project demonstrates the deployment of a **highly available and fault-tolerant 3-tier application** across two AWS regions. The application, sourced from [3-tier-app GitHub repo](https://github.com/arjunkoppineni/3-tier-app.git), combines the frontend and backend into a single Spring Boot application with an RDS MySQL database.
-
-The infrastructure is created in two regions using two different Infrastructure-as-Code (IaC) tools:
-
-* **Region 1**: Deployed using AWS CloudFormation.
-* **Region 2**: Deployed using Terraform.
-
-High availability is achieved through:
-
-* Multi-AZ VPC and subnet setup
-* EKS clusters with managed node groups in each region
-* RDS Multi-AZ deployment
-* Route 53 with **failover routing policy** across regions
+* [1. Introduction](#1-introduction)
+* [2. Application Overview](#2-application-overview)
+* [3. Infrastructure Design Principles](#3-infrastructure-design-principles)
+* [4. Overall Architecture](#4-overall-architecture)
+* [5. CloudFormation Deployment - Region 1](#5-cloudformation-deployment---region-1)
+* [6. Terraform Deployment - Region 2](#6-terraform-deployment---region-2)
+* [7. Global Traffic Management (Route 53)](#7-global-traffic-management-route-53)
+* [8. CI/CD Pipeline Setup](#8-cicd-pipeline-setup)
+* [9. Monitoring & Alerting](#9-monitoring--alerting)
+* [10. Security Best Practices](#10-security-best-practices)
+* [11. Future Enhancements](#11-future-enhancements)
+* [12. Author](#12-author)
 
 ---
 
-## Architecture Diagram
+## 1. Introduction
+
+This project provisions a **highly available**, **fault-tolerant**, **multi-tier web application** infrastructure in two AWS regions using **CloudFormation** and **Terraform**. It uses **Amazon EKS** for container orchestration, **Amazon RDS MySQL** for the database, and **Route 53** for global failover routing.
+
+---
+
+## 2. Application Overview
+
+* **GitHub Repo**: [3-tier-app](https://github.com/arjunkoppineni/3-tier-app.git)
+* **Tech Stack**: Spring Boot + Thymeleaf + RDS (MySQL)
+* **Infra Tools**: CloudFormation (Region 1), Terraform (Region 2)
+
+---
+
+## 3. Infrastructure Design Principles
+
+| Goal              | Strategy                                              |
+| ----------------- | ----------------------------------------------------- |
+| High Availability | Multi-AZ subnets, Multi-region failover with Route 53 |
+| Fault Tolerance   | Redundant EKS node groups, Route 53 failover policy   |
+| Scalability       | EKS Node Group Auto Scaling                           |
+| DR Readiness      | Active/passive regional setup with ALB + Route 53     |
+
+---
+
+## 4. Overall Architecture
 
 ```
-                         Internet
-                            |
-                       [Route 53]
-                    /               \
-         [ALB - Region 1]       [ALB - Region 2]
-              |                        |
-           [EKS]                    [EKS]
-              |                        |
-        [Spring Boot App]       [Spring Boot App]
-              |                        |
-         [RDS MySQL]             [RDS MySQL]
+                         🌐 Internet
+                              |
+                         [ Route 53 ]
+                      /                  \
+         📍 Region 1 (us-east-1)       📍 Region 2 (us-west-2)
+         ------------------------       ------------------------
+         [ ALB ]                       [ ALB ]
+            |                              |
+         [ EKS ]                        [ EKS ]
+            |                              |
+   [ Spring Boot App ]           [ Spring Boot App ]
+            |                              |
+      [ RDS MySQL DB ]            [ RDS MySQL DB ]
 ```
 
 ---
 
-## Components
+## 5. CloudFormation Deployment - Region 1
 
-### Application Layer
+### 💡 Architecture
 
-* **Source**: [3-tier-app](https://github.com/arjunkoppineni/3-tier-app.git)
-* **Stack**: Spring Boot + Thymeleaf templates
-* **Database**: AWS RDS (MySQL)
+See: [`vpc-eks-rds.yaml`](./region-1-cloudformation/vpc-eks-rds.yaml)
 
-### Infrastructure Layer
+### 🔍 Key Features
 
-#### CloudFormation Stack (Region 1)
+| Layer      | Resources                                                     |
+| ---------- | ------------------------------------------------------------- |
+| Network    | VPC, Public & Private Subnets, IGW, NAT Gateway, Route Tables |
+| Compute    | EKS Cluster, EKS Node Groups with IAM Roles                   |
+| Database   | RDS MySQL with Multi-AZ + Security Groups                     |
+| Monitoring | CloudWatch Alarms for RDS & EKS, SNS Topic                    |
+| IAM        | Roles for EKS, EC2, CloudWatch, CodeBuild                     |
 
-* VPC with 2 public and 4 private subnets
-* Internet Gateway and NAT Gateway
-* Route Tables with route associations
-* RDS MySQL with Multi-AZ deployment
-* IAM Roles for EKS Cluster and Node Group
-* EKS Cluster
-* EKS Node Group
-* CloudWatch Alarms
-* SNS Topic and Email Subscription
+### 🛠 Deployment Steps
+Create a Stack in CloudFormation and use the yaml file where resources are Specifed.
 
-#### Terraform Stack (Region 2)
-
-* Equivalent setup to Region 1
-* Uses same application and architecture design
+                (or)
+Create Infrastructure using CloudFormation and CodePipeline. Create a Git Repo and Place the Yaml file in that repo. Next Create a pipeline and select Source as Github and select Deploy stage (CF). Deploy to Cloudformation. It will create a stack.
+                
 
 ---
 
-## CloudFormation Template Features
+## 6. Terraform Deployment - Region 2
 
-### VPC and Subnet Setup
+### 💡 Terraform Structure
 
-* 1 VPC with configurable CIDR (`10.0.0.0/16` or `20.0.0.0/18`)
-* Public Subnets in AZ1 and AZ2
-* Private Subnets in AZ1 and AZ2
+```hcl
+provider "aws" {
+  region = "us-west-2"
+}
 
-### Routing and Internet Access
+module "vpc" { ... }
+module "eks" { ... }
+resource "aws_db_instance" "mysql" { ... }
+```
 
-* NAT Gateway in Public Subnet AZ1
-* IGW attached to VPC
-* Public route table routes internet traffic via IGW
-* Private route table routes via NAT Gateway
-
-### Database Layer
-
-* **RDS MySQL** with Multi-AZ deployment
-* Accessible via security group from app subnets
-* DBSubnetGroup used for RDS placement
-* Monitored using CloudWatch alarm for high CPU utilization
-
-### Compute Layer (EKS)
-
-* EKS Cluster with IAM Role
-* EKS Managed NodeGroup with autoscaling (min: 1, max: 3)
-* Worker node IAM role with policies to manage EC2, EKS, ECR, and SSM
-
-### Monitoring
-
-* CloudWatch Alarms for:
-
-  * High RDS CPU Utilization
-  * High EKS Pod CPU Utilization
-* SNS Topic for alert notifications (email based)
-
-### Outputs
-
-* RDS endpoint exported for application usage
-
----
-
-## Route 53 Failover
-
-* Two ALBs (one in each region)
-* **Route 53 Failover Routing** is configured to monitor the health of the primary region's ALB
-* If the primary ALB becomes unhealthy, traffic automatically fails over to the secondary region's ALB
-
----
-
-## Prerequisites
-
-* AWS CLI configured with proper access
-* Verified email for SNS notifications
-* Kubernetes tools: `kubectl`, `eksctl`
-* Terraform installed (for Region 2 setup)
-* Helm (optional, for managing deployments to EKS)
-
----
-
-## Deployment Steps
-
-### Region 1 - CloudFormation
-
-1. Clone the repo
+### 🛠 Steps
 
 ```bash
-git clone https://github.com/arjunkoppineni/3-tier-app.git
-cd 3-tier-app
-```
-
-2. Deploy the CloudFormation stack
-
-```bash
-aws cloudformation create-stack \
-  --stack-name MultiRegionAppStack \
-  --template-body file://your-template.yaml \
-  --capabilities CAPABILITY_NAMED_IAM \
-  --parameters ParameterKey=MyVpcCidr,ParameterValue=10.0.0.0/16 \
-               ParameterKey=MyDBRootUserPassword,ParameterValue=your-password \
-               ParameterKey=MySNSEmailEndpoint,ParameterValue=your-email@example.com
-```
-
-3. Confirm SNS subscription by verifying email
-
-4. Deploy the Spring Boot app to EKS (via `kubectl apply -f deployment.yaml`)
-
----
-
-### Region 2 - Terraform
-
-> Instructions would be similar but using Terraform configuration files.
-
-```bash
-cd terraform-region-2
+cd region-2-terraform
 terraform init
 terraform apply
 ```
 
 ---
 
-## Notes
+## 7. Global Traffic Management (Route 53)
 
-* Replace placeholder values in parameters for passwords and email
-* RDS MySQL credentials and endpoints should be securely referenced in your app's deployment manifest
-* Use ALB Ingress Controller or AWS Load Balancer Controller for exposing services in EKS
+### 🧠 Failover Logic
 
----
+| Record Type | Region    | Failover Role | Health Check |
+| ----------- | --------- | ------------- | ------------ |
+| A (Alias)   | us-east-1 | PRIMARY       | Enabled      |
+| A (Alias)   | us-west-2 | SECONDARY     | N/A          |
 
-## Security Best Practices
-
-* Do not open MySQL to `0.0.0.0/0` in production
-* Use Secrets Manager or SSM Parameter Store for DB credentials
-* Ensure IAM roles follow least privilege principle
+> If primary ALB is unhealthy, traffic fails over to secondary.
 
 ---
 
-## Monitoring & Alerting
+## 8. CI/CD Pipeline Setup
 
-* CloudWatch Alarms for RDS and EKS
-* SNS Topic with email notifications
-* Can be extended with CloudWatch Dashboards and Container Insights
+### 📦 Tools Used
+
+| Service      | Purpose                                  |
+| ------------ | ---------------------------------------- |
+| CodePipeline | Pipeline orchestration                   |
+| CodeBuild    | Builds Spring Boot app & deploys to EKS  |
+| CodeDeploy   | (Optional) EC2/ECS deployment management |
+| ECR          | (Optional) Container image storage       |
+| S3           | (Optional) Artifact storage              |
+
+### 📊 Architecture Diagram
+
+```
+┌────────────┐       ┌────────────┐       ┌──────────────┐       ┌────────────┐
+│  GitHub    │ ───▶  │ CodeBuild  │ ───▶  │ EKS/Kubernetes│ ───▶ │ CodeDeploy │
+└────────────┘       └────────────┘       └──────────────┘       └────────────┘
+     ▲                        │                   │                       │
+     └─────────────[Triggered on push]────────────┴────[Rolling updates / hooks]
+```
+
+### 🧰 Sample `buildspec.yml`
+
+```yaml
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+  build:
+    commands:
+      - mvn clean package
+      - kubectl apply -f deployment.yaml
+artifacts:
+  files: ["**/*"]
+```
+
+
+### 🛠 CI/CD Setup Steps
+
+1. Create CodePipeline with stages: Source (GitHub), Build (CodeBuild), Deploy (CodeBuild or CodeDeploy)
+2. Store Docker image in ECR (if containerized)
+3. Use IAM roles with EKS/CodeBuild/CodeDeploy permissions
+4. Monitor via CloudWatch Logs
 
 ---
 
-## Future Enhancements
+## 9. Monitoring & Alerting
 
-* Add CI/CD pipeline with CodePipeline and CodeBuild
-* Integrate WAF and Shield for ALB
-* Add Redis or ElastiCache for caching layer
-* Auto-scale EKS workloads using HPA
+### 🔔 Alarms
 
----
+| Metric                 | Threshold | Action    |
+| ---------------------- | --------- | --------- |
+| RDS CPUUtilization     | >70%      | SNS Email |
+| EKS Pod CPUUtilization | >80%      | SNS Email |
 
-## License
-
-This project is open-source and available under the MIT License.
+> Alerts delivered via SNS Topic (email notification)
 
 ---
 
-## Author
+## 10. Security Best Practices
+
+* **Private RDS**: Not publicly accessible
+* **IAM Roles**: Least privilege principle
+* **Secrets**: Use SSM Parameter Store or Secrets Manager
+* **Ingress Rules**: Restrict traffic using SGs and NACLs
+
+---
+
+## 11. Future Enhancements
+
+* Add **WAF + Shield** for ALB
+* Use **Horizontal Pod Autoscaler** (HPA)
+* Integrate **Prometheus + Grafana** for observability
+* Extend CI/CD with canary/blue-green deployments
+
+---
+
+## 12. Author
 
 **Arjun Koppineni**
-GitHub: [arjunkoppineni](https://github.com/arjunkoppineni)
+GitHub: [@arjunkoppineni](https://github.com/arjunkoppineni)
+
+---
+
+## 📝 Useful Commands
+
+```bash
+aws eks update-kubeconfig --region <region> --name <cluster-name>
+kubectl get nodes
+kubectl get svc
+kubectl logs -l app=myapp
+```
+
