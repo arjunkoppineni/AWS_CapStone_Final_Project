@@ -20,7 +20,8 @@ This project demonstrates the deployment of a **multi-tier/monolithic applicatio
                              |
                 +---------------------------+
                 |  Public Subnets (2 AZs)   |
-                |     - ALB / Bastion       |
+                |     - ALB (Application    |    
+                |       Load Balancer)      |
                 +---------------------------+
                              |
                     [ EKS Control Plane ]
@@ -137,13 +138,6 @@ This project demonstrates the deployment of a **multi-tier/monolithic applicatio
 * Use Karpenter or Cluster Autoscaler for EKS optimization
 
 ---
-
-## 📃 License
-
-This project is released under the MIT License.
-
----
-
 ## 🚀 Author
 
 [Arjun Koppineni](https://github.com/arjunkoppineni)
