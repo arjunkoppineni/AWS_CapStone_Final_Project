@@ -5,24 +5,16 @@ env:
     ACCOUNT_ID: 216989142685
     REGION: us-east-1
     REPO_NAME: test
-    IMAGE_TAG: latest1
-    IMAGE_URI: 216989142685.dkr.ecr.us-east-1.amazonaws.com/test:latest1
+    IMAGE_TAG: latest2
+    IMAGE_URI: 216989142685.dkr.ecr.us-east-1.amazonaws.com/test:latest2
 
 phases:
   install:
     runtime-versions:
       java: corretto17
     commands:
-      - echo Installing Maven and Docker...
+      - echo Installing Maven...
       - yum install -y maven docker
-      - echo Installing kubectl...
-      - |
-        KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
-        chmod +x kubectl
-        mv kubectl /usr/local/bin/kubectl
-      - echo Configuring kubeconfig...
-      - aws eks update-kubeconfig --region $REGION --name MyEKSCluster
 
   pre_build:
     commands:
@@ -49,12 +41,7 @@ phases:
       - mkdir -p k8s-out
       - sed "s|IMAGE_PLACEHOLDER|$IMAGE_URI|g" k8s/deployment.yaml > k8s-out/deployment.yaml
       - cp k8s/service.yaml k8s-out/service.yaml
-      - echo Applying manifests to EKS...
-      - kubectl apply -f k8s-out/deployment.yaml
-      - kubectl apply -f k8s-out/service.yaml
-      - echo Restarting deployment...
-      - kubectl rollout restart deployment todo-app
-      - echo ✅ Deployment complete.
+      - echo Done preparing artifacts.
 
 artifacts:
   base-directory: k8s-out
