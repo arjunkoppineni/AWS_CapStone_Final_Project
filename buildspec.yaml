@@ -15,7 +15,10 @@ phases:
     commands:
       - echo Installing Maven and Docker...
       - yum install -y maven docker
-      - curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
+      - curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+      - chmod +x kubectl
+      - mv kubectl /usr/local/bin/
       - install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - echo Configuring kubeconfig...
       - aws eks update-kubeconfig --region $REGION --name MyEKSCluster
