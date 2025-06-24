@@ -17,6 +17,7 @@ spec:
       containers:
         - name: todo-app
           image: 216989142685.dkr.ecr.us-east-1.amazonaws.com/test:latest1
+          imagePullPolicy: Always  # <-- This ensures the image is pulled every time
           ports:
             - containerPort: 80
           env:
