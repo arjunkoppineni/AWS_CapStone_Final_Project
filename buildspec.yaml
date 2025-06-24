@@ -18,7 +18,7 @@ phases:
       - echo Installing kubectl...
       - |
         KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
         chmod +x kubectl
         mv kubectl /usr/local/bin/kubectl
       - echo Configuring kubeconfig...
@@ -52,7 +52,7 @@ phases:
       - echo Applying manifests to EKS...
       - kubectl apply -f k8s-out/deployment.yaml
       - kubectl apply -f k8s-out/service.yaml
-      - echo Restarting deployment to ensure image is refreshed...
+      - echo Restarting deployment...
       - kubectl rollout restart deployment todo-app
       - echo ✅ Deployment complete.
 
