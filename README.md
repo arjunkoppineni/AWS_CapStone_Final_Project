@@ -25,7 +25,7 @@ This project provisions a **highly available**, **fault-tolerant**, **multi-tier
 
 ## 2. Application Overview
 
-* **GitHub Repo**: [3-tier-app](https://github.com/arjunkoppineni/3-tier-app.git)
+* **GitHub Repo**: [Multi-tier-app](https://github.com/arjunkoppineni/AWS_CapStone_Final_Project.git)
 * **Tech Stack**: Spring Boot + Thymeleaf + RDS (MySQL)
 * **Infra Tools**: CloudFormation (Region 1), Terraform (Region 2)
 
