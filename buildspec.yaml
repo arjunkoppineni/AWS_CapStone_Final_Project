@@ -10,19 +10,20 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      java: corretto17
-    commands:
-      - echo Installing Maven and Docker...
-      - yum install -y maven docker
-      - echo Installing kubectl...
-      - |
-        KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
-        chmod +x kubectl
-        mv kubectl /usr/local/bin/kubectl
-      - echo Configuring kubeconfig...
-      - aws eks update-kubeconfig --region $REGION --name MyEKSCluster
+  runtime-versions:
+    java: corretto17
+  commands:
+    - echo Installing Maven and Docker...
+    - yum install -y maven docker
+    - echo Installing kubectl...
+    - |
+      KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
+      curl -LO https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+      chmod +x kubectl
+      mv kubectl /usr/local/bin/kubectl
+    - echo Configuring kubeconfig...
+    - aws eks update-kubeconfig --region $REGION --name MyEKSCluster
+
 
   pre_build:
     commands:
