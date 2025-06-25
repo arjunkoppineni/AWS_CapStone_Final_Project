@@ -17,6 +17,11 @@ phases:
       - echo Installing Maven...
       - yum install -y maven docker
       - export IMAGE_TAG=v1.${CODEBUILD_BUILD_NUMBER}
+      - echo Installing Trivy...
+      - wget https://github.com/aquasecurity/trivy/releases/download/v0.63.0/trivy_0.63.0_Linux-64bit.tar.gz
+      - tar -xzf trivy_0.63.0_Linux-64bit.tar.gz
+      - mv trivy /usr/local/bin/
+      - trivy --version
 
   pre_build:
     commands:
@@ -39,7 +44,10 @@ phases:
       - docker build -t "${IMAGE_REPO}:${IMAGE_TAG}" .
       - docker tag "${IMAGE_REPO}:${IMAGE_TAG}" "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO}:${IMAGE_TAG}"
       - cd -
-
+      - mkdir -p trivy-reports
+      - trivy image --severity HIGH,CRITICAL --exit-code 0 --format table -o trivy-reports/Todo-report.txt ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO}:${IMAGE_TAG} || true
+    
+      
   post_build:
     commands:
       - echo Pushing image to Amazon ECR...
@@ -51,7 +59,8 @@ phases:
       - echo Done preparing artifacts.
 
 artifacts:
-  base-directory: k8s-out
   files:
-    - deployment.yaml
-    - service.yaml
+    - k8s-out/deployment.yaml
+    - k8s-out/service.yaml
+    - trivy-reports/*
+  discard-paths: yes
