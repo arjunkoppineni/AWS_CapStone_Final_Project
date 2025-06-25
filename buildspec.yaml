@@ -34,11 +34,11 @@ phases:
       # - docker build -t $REPO_NAME:$IMAGE_TAG .
       # - docker tag $REPO_NAME:$IMAGE_TAG $IMAGE_URI
       # - cd ..
-        - echo "Building and tagging ..."
-        - cd app-tier/
-        - docker build -t "${IMAGE_REPO}:${IMAGE_TAG}" .
-        - docker tag "${IMAGE_REPO}:${IMAGE_TAG}" "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO}:${IMAGE_TAG}"
-        - cd -
+      - echo "Building and tagging ..."
+      
+      - docker build -t "${IMAGE_REPO}:${IMAGE_TAG}" .
+      - docker tag "${IMAGE_REPO}:${IMAGE_TAG}" "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${IMAGE_REPO}:${IMAGE_TAG}"
+      - cd -
 
   post_build:
     commands:
