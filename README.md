@@ -1,4 +1,4 @@
-# 🚀 AWS Multi-Tier Application Deployment (Multi-Region, EKS, RDS, Route 53, CI/CD)
+# 🚀 Cloud-Native Multi-Tier Disaster Recovery Architecture on AWS (EKS, RDS, Route 53, CI/CD)
 
 ## 📌 Table of Contents
 
