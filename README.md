@@ -14,6 +14,7 @@
 * [10. Security Best Practices](#10-security-best-practices)
 * [11. Future Enhancements](#11-future-enhancements)
 * [12. Author](#12-author)
+* [13. Final Notes](#13-final-notes)
 
 ---
 
@@ -79,11 +80,12 @@ See: [`vpc-eks-rds.yaml`](./region-1-cloudformation/vpc-eks-rds.yaml)
 | IAM        | Roles for EKS, EC2, CloudWatch, CodeBuild                     |
 
 ### 🛠 Deployment Steps
-Create a Stack in CloudFormation and use the yaml file where resources are Specifed.
 
-                (or)
-Create Infrastructure using CloudFormation and CodePipeline. Create a Git Repo and Place the Yaml file in that repo. Next Create a pipeline and select Source as Github and select Deploy stage (CF). Deploy to Cloudformation. It will create a stack.
-                
+Create a Stack in CloudFormation and use the yaml file where resources are specified.
+
+**OR**
+
+Create Infrastructure using CloudFormation and CodePipeline. Create a Git Repo and place the YAML file in that repo. Then create a pipeline and select Source as GitHub and Deploy stage (CF). Deploy to CloudFormation. It will create a stack.
 
 ---
 
@@ -108,6 +110,8 @@ cd region-2-terraform
 terraform init
 terraform apply
 ```
+
+Repeat similar setup as in Region 1 using Terraform.
 
 ---
 
@@ -162,26 +166,13 @@ artifacts:
   files: ["**/*"]
 ```
 
-
 ### 🛠 CI/CD Setup Steps
 
 1. Create CodePipeline with stages: Source (GitHub), Build (CodeBuild), Deploy (CodeBuild or CodeDeploy)
 2. Store Docker image in ECR (if containerized)
 3. Use IAM roles with EKS/CodeBuild/CodeDeploy permissions
 4. Monitor via CloudWatch Logs
-
-
-Client → Route 53 → ALB (us-east-1)
-                        ↓
-           ┌──────────────────────┐
-           │     EKS Cluster      │
-           │ ┌───────────────┐    │
-           │ │ Spring Boot   │    │
-           │ │ App (Pod)     │    │
-           │ └───────────────┘    │
-           └──────────────────────┘
-                        ↓
-               Amazon RDS MySQL (Private Subnet)
+5. Integrate SonarQube and Trivy in CodeBuild for DevSecOps
 
 ---
 
@@ -222,6 +213,18 @@ GitHub: [@arjunkoppineni](https://github.com/arjunkoppineni)
 
 ---
 
+## 13. Final Notes
+
+* The application runs in **two AWS regions** (us-east-1 primary, us-west-2 secondary) for **high availability** and **disaster recovery**.
+* **CloudFormation** and **Terraform** are used for fully automated infrastructure setup.
+* **CI/CD** is implemented using **CodePipeline**, with **SonarQube** for code analysis and **Trivy** for image scanning.
+* **Route 53** provides DNS-based **failover** between regions.
+* **CloudWatch** and **SNS** handle monitoring and alerts.
+* **Security** is enforced using IAM roles, Secrets Manager, and private networking.
+* The setup is **automated, secure, and scalable** for production use.
+
+---
+
 ## 📝 Useful Commands
 
 ```bash
@@ -230,4 +233,3 @@ kubectl get nodes
 kubectl get svc
 kubectl logs -l app=myapp
 ```
-
