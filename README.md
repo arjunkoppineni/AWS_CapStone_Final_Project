@@ -117,7 +117,7 @@ Repeat similar setup as in Region 1 using Terraform.
 
 ## 7. Global Traffic Management (Route 53)
 
-### 🧠 Failover Logic
+### 🧐 Failover Logic
 
 | Record Type | Region    | Failover Role | Health Check |
 | ----------- | --------- | ------------- | ------------ |
@@ -139,6 +139,8 @@ Repeat similar setup as in Region 1 using Terraform.
 | CodeDeploy   | (Optional) EC2/ECS deployment management |
 | ECR          | (Optional) Container image storage       |
 | S3           | (Optional) Artifact storage              |
+| SonarQube    | Static code quality and security scanner |
+| Trivy        | Container vulnerability scanner          |
 
 ### 📊 Architecture Diagram
 
@@ -150,7 +152,21 @@ Repeat similar setup as in Region 1 using Terraform.
      └─────────────[Triggered on push]────────────┴────[Rolling updates / hooks]
 ```
 
-### 🧰 Sample `buildspec.yml`
+### 🪰 SonarQube Integration
+
+* Integrated in CodeBuild phase.
+* Performs static analysis on Java code.
+* Configured using `SONAR_HOST_URL` and `SONAR_TOKEN` as environment variables.
+* Fails build if quality gates are not met.
+
+### 🪛 Trivy Integration
+
+* Trivy scans built Docker image before pushing to ECR.
+* Detects vulnerabilities, secrets, and misconfigurations.
+* Configured in buildspec.yml.
+* Fails build if critical issues are found.
+
+### 🛠 Sample `buildspec.yml`
 
 ```yaml
 version: 0.2
@@ -158,21 +174,22 @@ phases:
   install:
     runtime-versions:
       java: corretto11
+    commands:
+      - curl -sSL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip && unzip sonar-scanner-cli-*.zip
   build:
     commands:
+      - ./sonar-scanner-*/bin/sonar-scanner \
+          -Dsonar.projectKey=MyApp \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
       - mvn clean package
+      - docker build -t myapp:latest .
+      - ./trivy image --exit-code 1 myapp:latest
       - kubectl apply -f deployment.yaml
 artifacts:
   files: ["**/*"]
 ```
-
-### 🛠 CI/CD Setup Steps
-
-1. Create CodePipeline with stages: Source (GitHub), Build (CodeBuild), Deploy (CodeBuild or CodeDeploy)
-2. Store Docker image in ECR (if containerized)
-3. Use IAM roles with EKS/CodeBuild/CodeDeploy permissions
-4. Monitor via CloudWatch Logs
-5. Integrate SonarQube and Trivy in CodeBuild for DevSecOps
 
 ---
 
@@ -225,7 +242,7 @@ GitHub: [@arjunkoppineni](https://github.com/arjunkoppineni)
 
 ---
 
-## 📝 Useful Commands
+## 📜 Useful Commands
 
 ```bash
 aws eks update-kubeconfig --region <region> --name <cluster-name>
