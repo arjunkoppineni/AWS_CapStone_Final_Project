@@ -170,6 +170,19 @@ artifacts:
 3. Use IAM roles with EKS/CodeBuild/CodeDeploy permissions
 4. Monitor via CloudWatch Logs
 
+
+Client → Route 53 → ALB (us-east-1)
+                        ↓
+           ┌──────────────────────┐
+           │     EKS Cluster      │
+           │ ┌───────────────┐    │
+           │ │ Spring Boot   │    │
+           │ │ App (Pod)     │    │
+           │ └───────────────┘    │
+           └──────────────────────┘
+                        ↓
+               Amazon RDS MySQL (Private Subnet)
+
 ---
 
 ## 9. Monitoring & Alerting
